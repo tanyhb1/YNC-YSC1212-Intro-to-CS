@@ -1,0 +1,86 @@
+(*Class 6a *)
+
+(*in which we went through certain ways to analyze the running time of a queue, specifically amortized analysis of the optimized en/de-queue *)
+
+(*chapter 7 of textbook *)
+
+let dict = [(1,2); (3,4); (5,6)];;
+
+let rec lookup x l =
+  match l with
+  | [] -> raise Not_found
+  | (k, v) :: t -> if k = x then v else lookup x t;;
+
+let rec add k v l =
+  match l with
+  | [] -> [(k, v)]
+  | (a, b) :: t -> if a = k then (k, v) :: t else (a, b) :: add k v t;;
+
+let rec remove k l =
+  match l with
+  | [] -> []
+  | (a, b) :: t -> if a = k then t else (a, b) :: remove k t;;
+
+let rec key_exists k l =
+  try
+    let _ = lookup k l in true
+  with
+    Not_found -> false;;
+
+(*question 1 *)
+
+let no_keys l =
+  let helper l acc =
+    match l with
+    | [] -> acc
+    | (a, b) :: t -> no_keys t (acc + 1)
+  in helper l 0;;
+
+(* question 2 *)
+
+let rec replace k v l =
+  match l with
+  | [] -> raise Not_found
+  | (a, b) :: t -> if a = k then (k, v) :: t else replace k v t;;
+
+(* question 3 *)
+
+let rec mkdict keys values =
+  match keys, values with
+  | [], [] -> []
+  | _, [] -> raise (Invalid_argument "mkdict")
+  | [], _ -> raise (Invalid_argument "mkdict")
+  | k::kt, v::vt -> (k,v)::mkdict kt vt;;
+
+(*question 4 *)
+
+let decon l =
+  let rec helper l keyl valuel =
+    match l with
+    | [] -> (keyl, valuel)
+    | (a, b) :: t -> helper t (a::keyl) (b::valuel)
+  in helper l [] [];;
+
+(* question 5 *)
+let rec member x l =
+  match l with
+  | [] -> false
+  | h :: t -> if h = x then true else member x t;;
+
+let rec mkdict2_helper seen l =
+  match l with
+  | [] -> []
+  | (a, b) :: t -> if member a seen then mkdict2_helper seen t
+                   else (a, b) :: mkdict2_helper (a::seen) t;;
+let mkdict2 l =
+  mkdict2_helper [] l;;
+
+(*question 6*)
+
+let union a b =
+  let rec helper a b lst =
+    match a, b with
+    | [], [] -> []
+    | [], (bk, bv) :: bt -> if key_exists bk lst then helper [] bt lst else helper [] bt ((bk,bv)::lst)
+    | (ak, av) :: at, (bk, bv) :: bt -> helper at b ((ak,av)::lst)
+  in helper a b [];;

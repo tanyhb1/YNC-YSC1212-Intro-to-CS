@@ -1,0 +1,42 @@
+(* TAN YAO HONG BRYAN ASSIGNMENT NO. 5a *)
+
+(* question 1 *)
+exception Invalid_input;;
+
+let rec filter_truth f l =
+  match l with
+  | [] -> true
+  | h :: t -> if f h then filter_truth f t else false;;
+
+
+let check l =
+  filter_truth (fun c -> (c = '(' || c = ')' || c = '[' || c = ']' || c = '{' || c = '}')) l;;
+
+
+let char_match a b =
+  (a = '(' && b = ')' ) || (a = '{' && b = '}') || (a = '[' && b = ']');;
+
+
+let rec complex_paren_match_helper stk lst chk =
+  match lst with
+  | h :: t -> (match stk with
+                 | [] -> if (h = ')' || h = ']' || h = '}') then false else (complex_paren_match_helper (h :: stk) t true)
+                 | x :: [] -> if char_match x h then complex_paren_match_helper [] t true else complex_paren_match_helper (h :: stk) t false
+                 | x :: xs -> if char_match x h then complex_paren_match_helper xs t true else complex_paren_match_helper (h :: stk) t false)
+  | [] -> if stk = [] then chk else false;;
+
+
+let rec complex_paren_match l =
+  if l = [] then true
+  else (if check l then complex_paren_match_helper [] l false else raise Invalid_input);;
+
+(* Extra credit problem *)
+
+(* Any strategy with a finite number of counters k will not be able to solve the complex matching parenthesis problem *)
+
+(* This is because of the arrangement of the different types of parentheses '(', '[', and '{', within an input that could be length > k. Trivially extending the simple solution from the simple matching
+parenthesis problem would mean the use of 3 different counters to keep track of '(', '[', and '{' and their counterparts, but this does not account for the different arrangements of '(', '[', and '{' that are possible, since the complex matching parenthesis problem requires that the closing parenthesis be matched with the most recent open parenthesis. Thus, the use of 3 different counters would return an incorrect answer because it does not meet the requirement for fidelity in arrangement. For instance, ['('; '['; '{'; ']'; '}'; ')] would return true when it should return false. *)
+
+(* To account for this, with a finite number of counters k we can attempt to implement counters to then keep track of which parenthesis is the current opening parenthesis, either by creating 3 additional counters or by attempting to create k counters to keep track. The first implementation would still be incorrect because it does not keep track of arrangement of the parentheses, only keeping track of the number of different opening parentheses. The second implementation would fail because it is possible for the input length to be >k and >3*k *)
+
+(* Thus, the implementation of counter-based strategies with a finite number of counters k will not be able to solve the complex matching parenthesis problem because of the problem of arrangement wherein input can be > k. *)

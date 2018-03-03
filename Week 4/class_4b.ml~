@@ -1,0 +1,37 @@
+(* class 4b *)
+
+exception My_exn;;
+
+raise My_exn;;
+
+let head l =
+  match l with
+  | h :: _ -> h
+  | [] -> raise Not_found;;
+
+exception Head_not_found;;
+
+
+let head l =
+  match l with
+  | h :: _ -> h
+  | [] -> raise Head_not_found;;
+
+let test x = raise Not_found;;
+
+(test 17) + 5;;
+
+let head l =
+  match l with
+  | h :: _ -> h;;
+
+exception Myexn of int;;
+let strange l =
+  match l with
+  | h1 :: h2 :: _ -> h1 + h2
+  | h1 :: [] -> raise (Myexn 0)
+  | [] -> raise (Myexn 1);;
+
+let strange2 x =
+  if x mod 2 = 0 then x + x
+  else raise (Myexn x);;

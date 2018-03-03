@@ -1,0 +1,167 @@
+(* Class 2A *)
+
+(* Lists *)
+
+let mylist = [1; 7 ; 12 ; 15];;
+
+2 :: 3 :: [];;
+
+(* list can be recursively broken down into head and tail, and so on *)
+(* the end of a list is a tail that is the empty list [] *)
+(* empty list [] does not have a head *)
+(* :: is called cons, and is used to add a single element to the front of an existing list *)
+
+[1;2] @ [3;4;5];;
+
+{*the @ operator, append, is used to combine two lists together *)
+
+let list2 = 8 :: mylist;;
+
+(* :: is an operation that attaches an integer to the front of an existing list, i.e 6 :: (1 :: 2 :: 3 :: []);; *)
+(* attaching a new head to a list has a constant run time *)
+
+(* note that list2 doesn't make a new copy of mylist. instead, it makes a new list called list2 and points the pointer to the head of mylist. *)
+
+let head l = match l with
+  | x :: xs -> x ;;
+
+(* the cons :: used in a function is used to deconstruct the head from the tail rather than to construct the list *)
+let tail l = match l with
+  | x :: xs -> xs
+  | [] -> [];;
+
+let rec length l = match l with
+  | [] -> 0
+  | x :: xs -> 1 + length xs;;
+
+let length2 b =
+  let rec length2_helper b acc = match b with
+    | [] -> acc
+    | x :: xs -> length2_helper xs (acc + 1)
+  in length2_helper b 0;;
+let b = [5;3;2;1;65;7;3;2;34;2;5;6;23;4;4];;
+length2 b;;
+length b;;
+let addlist2 l =
+  let rec addlist2_helper l acc = match l with
+    | [] -> acc
+    | x :: xs -> addlist2_helper xs (acc + x)
+  in addlist2_helper l 0;;
+
+let rec odd_elements l =
+  match l with
+  | [] -> []
+  | [a] -> [a]
+  | a::_::t -> a :: odd_elements t;;
+
+odd_elements [1;2;3;4;5;6;7];;
+
+let rec append a b = match a with
+  | [] -> b
+  | x :: xs -> x :: append xs b;;
+
+let rec rev l =
+  match l with
+  | [] -> []
+  | x :: xs -> rev (xs @ [x]);;
+
+let rec sum l = match l with
+  | [] -> 0
+  | x :: xs -> x + sum xs;;
+sum [5;3;4;4;4];;
+length [5;4;3;234;34;2];;
+head mylist;;
+tail mylist;;
+let list3 = tail mylist;;
+
+let addfirst2 l = match l with
+  | x :: (y :: tl) -> x + y 
+  | x :: xs -> x
+  | [] -> 0;;
+
+let isvowel x = match x with
+  | 'a' -> true
+  | 'e' -> true
+  | 'i' -> true
+  | 'o' -> true
+  | 'u' -> true
+  | x -> false;;
+
+(* match is like putting a cardboard box that has holes in it onto an object to see if it fits *)
+(* match can only accept variables and data structures *)
+(* match does not work as a check for equality *)
+
+let x = 17;;
+
+let isx y = match y with
+  | x -> true
+  | z -> false;;
+
+(* match is usually constant time. equality ( = ) can take more than constant time *)
+
+mylist;;
+mylist = [1;7;12;15];;
+
+(* equality has to walk through the list *)
+
+let rec listequality l1 l2 =
+  match l1 with
+  | [] -> l2 = []
+  | x :: l1' ->
+     match l2 with
+     | [] -> false
+     | y :: l2' -> (x = y) && listequality l1' l2';;
+
+
+
+let rec addlist l =
+  match l with
+  | [] -> 0
+  | x :: xs -> x + addlist xs;;
+
+addlist [2;3;7];;
+
+(* takes some constant amount multiplied by the length of the list memory to store the intermediate pending computations *)
+(* recursion uses the data structure stack *)
+(* we can do better *)
+
+let addlist2 l =
+  let rec addlist2_helper l acc = match l with
+    | [] -> acc
+    | x :: xs -> addlist2_helper xs (acc + x)
+  in addlist2_helper l 0;;
+
+
+(* non-pending computation -> less space required since acc computes the operations during each recursion *)
+
+addlist2 [2;3;7;50];;
+
+let rec take n l =
+  if n = 0 then [] else
+    match l with
+    | x :: xs -> x :: take (n - 1) xs;;
+let rec drop n l =
+  if n = 0 then l else
+    match l with
+    | x :: xs -> drop (n - 1) xs;;
+
+(* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX *)
+(* Chapter 4 questions *)
+
+let rec evens l = match l with
+  | [] -> []
+  | [a] -> []
+  | x :: xs :: s -> xs :: evens s;;
+
+let rec count_true l = match l with
+  | [] -> 0
+  | x :: xs -> if x = true then 1 + count_true xs else count_true xs;;
+let rec count_true_tail l = match l with
+  | [] -> 0
+  | x :: xs -> ;;
+let rec rev l = match l with
+  | [] -> []
+  | x :: xs -> rev (xs @ [x]);;
+let rec palindrome l = match l with
+  | [] -> []
+  | x :: xs -> 

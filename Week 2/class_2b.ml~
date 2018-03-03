@@ -1,0 +1,56 @@
+let l1 = [3;4;6];;
+let l2 = [3;1;4];;
+l1 @ l2;;
+
+let rec concat l1 l2 =
+  match l1 with
+  | [] -> l2
+  | h :: l1' -> h :: concat l1' l2;;
+
+(* @, concat, takes a running time of n1, or the number of characters in the first list in l1 @ l2 *)
+(* 1. (L1 @ L2) @ L3 
+   2. L1 @ (L2 @ L3)
+   1 will take a longer running time than 2 due to the associative property of concatenate *)
+
+let lol = [[2;3;4];[5;7];[12;3;17;8;8]];;
+let rec multiconcat ll = match ll with
+  | [] -> []
+  | l :: lt -> l @ (multiconcat lt);;
+(*running time of multiconcat [l1;l2;l3;l4] is rt(l1)+rt(l2)+rt(l3)+rt(l4)*)
+
+
+(*recursive vs tail-recursive run-time*)
+
+let rec sum l =
+  match l with
+  | [] -> 0
+  | h :: l' -> h + sum l';;
+
+let rec sum_tr l acc =
+  match l with
+  | [] -> acc
+  | h :: l' -> sum_tr l' h+acc;;
+
+let rec func1 l =
+  match l with
+  | [] -> []
+  | h :: l' -> h :: func1 1';;
+let rec func1_tr l acc =
+  match l with
+  | [] -> acc
+  | h :: l' -> func1_tr l' (h :: acc);;
+             
+let rec sublist_evens l =
+  match l with
+  | [] -> []
+  | h :: t -> if h mod 2 = 0
+              then h :: sublist_evens t
+              else sublist_evens t;;
+
+let rec sublist_evens_tr l acc =
+  match l with
+  | [] -> acc
+  | h :: t -> if h mod 2 = 0
+               then sublist_evens_tr t (h :: acc)
+               else sublist_evens_tr t acc;;
+                 

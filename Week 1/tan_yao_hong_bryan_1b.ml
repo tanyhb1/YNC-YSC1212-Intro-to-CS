@@ -1,0 +1,30 @@
+(* Tan Yao Hong Bryan Assignment Problem Set 1b *)
+
+let rec fib n =
+  if n = 0 || n = 1 then 1
+  else fib(n - 1) + fib (n - 2);;
+
+(* question 1*)
+
+(* The function is slow because it has a running time of roughly 2 ** n due to the number of recursive functions doubling each time the function is called. Thus, even relatively small values of n (such as n = 40) will cause the fib function to increase in running time exponentially (e.g. 2 ** 40). *)
+(* Furthermore, it would also have to store all the ints, functions, and operations until the recursive functions are all complete due to functions having greater precedence over arithmatic operations. To give an example, fib 6 would lead to fib(5)  + fib(4). fib(5) and fib(4) have greater precedence over their addition, so this would then lead to fib 6 = (fib(4) + fib(3))  + (fib(3) + fib(2))), and so on until it reaches n = 1 with a resulting 2 ** 6 terms before finally completing the arithmatic operations. *) 
+
+
+(* question 2*)
+
+let fast_fib n =
+  let rec help n p q =
+    if n = 0 || n = 1 then p + q
+    else help (n - 1) q (p + q)
+    in help n 0 1;;
+
+
+
+(* question 3*)
+
+let super_optimized_fib n =
+  165580141;;
+    
+
+(*To 'compute/calculate/return' the 40th Fibonacci number (from the implementation in question 1 & 2) in the minimum number of arithmetic operations would be to simply return the 40th Fibonacci number. *)
+(*Since the question does not require the function to find any other number, 'return'-ing the 40th Fibonacci number would have the minimum number of arithmetic operations (0 arithmetic operations) *) 

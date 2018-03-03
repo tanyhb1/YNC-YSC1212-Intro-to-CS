@@ -1,0 +1,43 @@
+(* TAN YAO HONG BRYAN ASSIGNMENT NO. 4a *)
+
+(* question 1 *)
+
+let rec meld f b l =
+  match l with
+  | [] -> b
+  | x :: xs -> f x (meld f b xs);;
+
+let length_alt l = meld (fun _ b -> 1 + b) 0 l;;
+let sum_alt l = meld (fun a b -> a + b ) 0 l;;
+let containsZero_alt l = meld(fun a b -> a = 0 || b) false l;;
+let nsum_alt l = meld (fun a b -> a - b ) 0 l;;
+
+(* question 2 *)
+(* meld : ('a -> 'b -> 'b) -> 'b -> 'a list -> 'b
+   meld_left : ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a 
+   meld f takes 'a and 'b, and returns 'b; meld_left f takes 'a and 'b and returns 'a*)
+
+let rec meld_left f b l =
+  match l with
+  | [] -> b
+  | x :: xs -> meld_left f (f b x) xs;;
+
+let nsum_alt_l l = meld_left (fun a b -> a - b ) 0 l;;
+
+(* question 3 *)
+let rec filter f l =
+  match l with
+  | [] -> []
+  | h :: t -> if f h then h :: filter f t
+              else filter f t;;
+let rec createList n acc =
+  if n < 0 then [] else acc :: createList (n - 1) (acc + 1);;
+
+let notMultiple a b=
+  b mod a <> 0;;
+let rec findPrimes n =
+  if n < 2 then []
+  else let lst = createList n 2 in
+       match lst with
+       | [] -> []
+       | x :: xs -> filter (fun a -> a mod x <> 0) findPrimes ;;
