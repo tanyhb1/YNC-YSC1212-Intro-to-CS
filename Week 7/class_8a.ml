@@ -1,0 +1,115 @@
+(*Class 8a *)
+
+2+1;;
+
+
+type 'a tree = Leaf | Node of ('a tree) * 'a  *('a tree);;
+type 'a option = None | Some of 'a;;
+
+let rec size t =
+  match t with
+  | Leaf -> 1
+  | Node (left, _, right) -> 1 + size left + size right;;
+
+let test_tree = (Node (Leaf, 0, Node(Leaf, 1, Leaf)));;
+
+size test_tree;;
+
+let max a b = if a > b then a else b;;
+
+let rec height t =
+  match t with
+  | Leaf -> 0
+  | Node (left, _, right) -> 1 + max (height left) (height right);;
+
+height test_tree;;
+
+let rec find k t =
+  match t with
+  | Leaf -> None
+  | Node (left ,(key, value), right) ->
+     if k = key then value
+     else if k < key then find k left
+     else find k right;;
+
+
+let emptydict = Leaf;;
+
+let rec insert k v t =
+  match t with
+  | Leaf -> Node (Leaf, (k,v), Leaf)
+  | Node (left, (key,value), right) ->
+     if k = key then Node (left, (k,v), right)
+     else if k < key then Node (insert k v left, (key, value), right) 
+     else Node (right, (key,value), insert k v right);;
+
+
+let rec largest t =
+  match t with
+  | Leaf -> None
+  | Node (_, (k,v), Leaf) -> Some (k,v)
+  | Node (_, _, right) -> largest right;;
+
+let pred t =
+  match t with
+  | Leaf -> None
+  | Node (left, _, _) -> largest left;;
+
+exception Bad;;
+let rec remove_largest t =
+  match t with
+  | Leaf -> None
+  | Node (left, (k,v), Leaf) -> Some((k,v), left)
+  | Node (left,(k,v), right) ->
+     (match remove_largest right with
+      | None -> raise Bad
+      | Some((key,value), newleft) -> Some((key,value), Node (left, (k,v), newleft)));;
+
+let rec remove_pred t =
+  match t with
+  | Leaf -> None
+  | Node (left, (k,v), right) ->
+     (match remove_largest left with
+      | None -> None
+      | Some ((key,value), newleft) -> Some ((key,value), Node (newleft, (k,v), right)));;
+
+let rec remove k t =
+  match t with
+  | Leaf -> Leaf
+  | Node (left, (key,value), right) ->
+     if k < key then Node (remove k left, (key, value), right)
+     else if k > key then Node (left, (key, value), remove k right)
+     else (match remove_pred t with
+           | None -> right
+           | Some ((pred_key, pred_val), newleft) -> Node (newleft, (pred_key, pred_val), right));;
+
+let a_tree = Node(Node (Leaf, (-1, "minus one"), Leaf),
+                  (0, "zero"),
+                  Node (Node (Node (Leaf, (2, "two"), Leaf),
+                              (4, "four"),
+                              Node (Leaf, (5, "five"), Leaf)),
+                        (7, "seven"),
+                        Leaf));;
+remove_largest a_tree;;
+remove_pred a_tree;;
+
+(* chapter 11 *)
+
+(* red black trees *)
+
+type color = Red | Blk;;
+type tree = Lf
+          | Br of color * tree * int * string * tree;;
+
+exception Not_found;;
+
+let rec find tr k =
+  match tr with
+  | Lf -> raise Not_found
+  | Br (_, lf);;
+
+let balance t =
+  match t with
+  | (Blk, Br (Red, Br(Red, alpha, kx, vx, beta), ky, vy, gamma), kz, vz, delta)
+    -> Br (Red, Br( Blk, alpha, kx, vx, beta), ky vy, Br (Blk, gamma, kz, vz, delta))
+  | (a,b,c,d,e) -> Br(a,b,c,d,e);;

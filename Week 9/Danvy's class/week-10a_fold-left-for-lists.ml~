@@ -1,0 +1,164 @@
+(* week-10a_fold-left-for-lists.ml *)
+(* Introduction to Computer Science (YSC1212), Sem2, 2017-2018 *)
+(* Olivier Danvy <danvy@yale-nus.edu.sg> *)
+(* Version of Mon 19 Mar 2018 *)
+
+(* ********** *)
+
+let test_length candidate =
+  (candidate [] = 0) &&
+  (candidate [1] = 1) &&
+  (candidate [2; 1] = 2) &&
+  (candidate [3; 2; 1] = 3)
+  (* etc. *);;
+
+let length_acc xs_init =
+  let rec visit xs a =
+    match xs with
+    | [] ->
+       a
+    | x :: xs' ->
+       visit xs' (1 + a)
+  in visit xs_init 0;;
+
+let () = assert (test_length length_acc);;
+
+(* ********** *)
+
+let test_reverse candidate =
+  (candidate [] = []) &&
+  (candidate [0] = [0]) &&
+  (candidate [1; 0] = [0; 1]) &&
+  (candidate [2; 1; 0] = [0; 1; 2])
+  (* etc. *);;
+
+let _ = assert (test_reverse List.rev);;
+
+let reverse vs_init =
+  let rec visit vs a =
+    match vs with
+    | [] ->
+       a
+    | v :: vs' ->
+       visit vs' (v :: a)
+  in visit vs_init [];;
+
+let _ = assert (test_reverse reverse);;
+
+(* ********** *)
+
+(* The mother of all fold-left functions: for lists. *)
+
+let fold_left_list nil_case cons_case xs_init =
+  let rec visit xs a =
+    match xs with
+    | [] ->
+       a
+    | x :: xs' ->
+       visit xs' (cons_case x a)
+  in visit xs_init nil_case;;
+
+(* ********** *)
+
+(* Exercise 1:
+
+   Express length_acc using fold_left_list
+   and verify that it passes the unit test.
+*)
+
+(*
+let length_acc_alt vs =
+  ... fold_left_list ...;;
+
+let () = assert (test_length length_acc_alt);;
+*)
+
+(* ********** *)
+
+(* Exercise 2:
+
+   Express reverse using fold_left_list
+   and verify that it passes the unit test.
+*)
+
+(*
+let reverse_alt vs =
+  ... fold_left_list ...;;
+
+let () = assert (test_reverse reverse_alt);;
+*)
+
+(* ********** *)
+
+let test_fold_right_list_int_list_int_list candidate =
+  (candidate [] (fun x c -> x :: c) [1; 2; 3] = [1; 2; 3])
+  (* etc. *);;
+
+let test_fold_right_list_int_list_int candidate =
+  (candidate 0 (fun _ c -> 1 + c) [1; 2; 3] = 3)
+  (* etc. *);;
+
+let fold_right_list nil_case cons_case xs_init =
+  let rec visit xs =
+    match xs with
+    | [] ->
+       nil_case
+    | x :: xs' ->
+       cons_case x (visit xs')
+  in visit xs_init;;
+
+let () = assert (test_fold_right_list_int_list_int_list fold_right_list);;
+
+let () = assert (test_fold_right_list_int_list_int fold_right_list);;
+
+(* ********** *)
+
+let test_fold_left_list_int_list_int_list candidate =
+  (candidate [] (fun x c -> x :: c) [1; 2; 3] = [3; 2; 1])
+  (* etc. *);;
+
+let test_fold_left_list_int_list_int candidate =
+  (candidate 0 (fun _ c -> 1 + c) [1; 2; 3] = 3)
+  (* etc. *);;
+
+let () = assert (test_fold_left_list_int_list_int_list fold_left_list);;
+
+let () = assert (test_fold_left_list_int_list_int fold_left_list);;
+
+(* Exercise 3:
+
+   Express fold_left_list in terms of fold_right_list
+   and verify that it passes the unit test.
+*)
+
+(*
+let fold_left_list_alt nil_case cons_case xs =
+  ... fold_right_list ...
+
+let () = assert (test_fold_left_list_int_list_int_list fold_left_list_alt);;
+
+let () = assert (test_fold_left_list_int_list_int fold_left_list_alt);;
+*)
+
+(* ********** *)
+
+(* Exercise 4 (optional because it is harder):
+
+   Express fold_right_list in terms of fold_left_list
+   and verify that it passes the unit test.
+*)
+
+(*
+let fold_right_list_alt nil_case cons_case xs =
+  ... fold_left_list ...
+
+let () = assert (test_fold_right_list_int_list_int_list fold_right_list_alt);;
+
+let () = assert (test_fold_right_list_int_list_int fold_right_list_alt);;
+*)
+
+(* ********** *)
+
+(* end of week-10a_fold-left-for-lists.ml *)
+
+"week-10a_fold-left-for-lists.ml"

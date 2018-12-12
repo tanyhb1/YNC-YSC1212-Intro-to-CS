@@ -1,0 +1,107 @@
+(* TAN YAO HONG BRYAN ASSIGNMENT no. 11b *)
+
+(* question 1 *)
+let rec fold_left f i l =
+  match l with
+    | [] -> i
+    | h :: t -> fold_left f (f i h) t;;
+
+let input_catalog () = 
+  let ic = open_in "Museum.cat" in
+  let rec helper acc =
+    try
+      let name = input_line ic in
+      let weight = float_of_string (input_line ic) in
+      let value = float_of_string (input_line ic) in
+        helper ((name, weight, value) :: acc)
+    with 
+        _ -> acc 
+  in 
+  let choices = helper [] in
+    close_in ic;
+    choices;;
+
+let total_weight lst =
+  fold_left (fun acc (_, w, _) -> acc +. w) 0. lst;;
+
+let total_value lst =
+  fold_left (fun acc (_, _, v) -> acc +. v) 0. lst;;
+
+
+(* my ans *)
+
+exception EmptyMuseum;;
+
+let cal_efficiency items =
+  let rec helper items acc = 
+    match items with
+    | [] -> List.rev (List.sort compare acc)
+    | h :: t -> (match h with
+                 |(name, weight, value) -> helper t (((value /. weight), name, weight, value) :: acc))
+  in helper items [];;
+
+let rob (items: (string * float * float) list) (capacity: float) =
+  let items = cal_efficiency items in
+  let rec backpack items (capacity: float) acc =
+    if capacity <= 0.0 then acc
+    else
+      match items with
+      | [] -> raise EmptyMuseum
+      | h :: t ->
+         (match h with
+          | (_, n, w, v) ->
+             if w < capacity
+             then backpack t (capacity -. w) ((n,w,v) :: acc)
+             else
+               backpack t 0.0 ((n, capacity, v *. (capacity /. w)) :: acc))
+  in backpack items capacity [];;
+
+
+let items = input_catalog ();; (* Load in Museum.cat *)
+let plan = rob items 18.68;; (* We can carry 18.68 kg *)
+
+total_value plan;; (* Should be 3431.21122 *)
+total_weight plan;;
+
+(* question 3 *)
+
+type outcome = Car | Goat;;
+
+let construct_game (n_doors : int) =
+  let arr =  Array.make n_doors Goat in
+  arr.(n_doors - 1) <- Car;
+  arr;;
+
+let monty (n_doors : int) (n_trials : int) (strategy : bool) =
+  let game n_doors n_trials strategy =
+    (* initialize game array and choose random door *)
+  let initial_choice = (construct_game n_doors).(Random.int n_doors) in
+  if strategy then
+    match initial_choice with
+    (* if goat, create new game array that has 2 less doors (both of which contain goats) and then choose a random door again *)
+    | Goat -> (construct_game (n_doors - 2)).(Random.int (n_doors - 2))
+    | Car -> Goat
+  else
+    initial_choice
+  in
+  let winning_percentage n_doors n_trials strategy =
+    let acc = ref 0 in
+    for i = 1 to n_trials
+    do
+      let outcome = game n_doors n_trials strategy
+      in
+      if outcome = Car then
+        acc := !acc + 1
+    done;
+    (float !acc /. float n_trials) *. 100.
+  in winning_percentage n_doors n_trials strategy;;
+
+
+monty 3 1000000 true;;
+monty 3 1000000 false;;
+monty 5 1000000 true;;
+monty 10 1000000 true;;
+monty 10 1000000 false;;
+monty 3 10000000 true;;
+monty 3 100000000 true;;
+monty 3 1000000000 true;;

@@ -1,0 +1,393 @@
+(* week-10a_fold-right-for-lists.ml *)
+(* Introduction to Computer Science (YSC1212), Sem2, 2017-2018 *)
+(* Olivier Danvy <danvy@yale-nus.edu.sg> *)
+(* Version of Mon 19 Mar 2018 *)
+
+(* ********** *)
+
+(* Reminder of basic equivalences in OCaml:
+     http://users-cs.au.dk/danvy/YSC1212/lecture-notes/week-11a_equational-reasoning.html
+     http://users-cs.au.dk/danvy/YSC1212/lecture-notes/week-11a_generic-programming-with-lists.html
+
+ * function declarations:
+
+       fun x y z -> e
+     is equivalent to
+       fun x y -> fun z -> e
+     which is equivalent to
+       fun x -> fun y -> fun z -> e
+
+ * let expressions:
+
+       let f x y z = e
+     is equivalent to
+       let f x y = fun z -> e
+     which is equivalent to
+       let f x = fun y -> fun z -> e
+     which is equivalent to
+       let f = fun x -> fun y -> fun z -> e
+     which is equivalent to
+       let f = fun x y z -> e
+     as seen just above
+
+   and ditto for 
+       let rec f x y z = e
+
+ * applying functions associates to the left:
+
+       (e0 e1) e2
+    is equivalent to
+       e0 e1 e2
+
+ * let expressions and applications can be swapped:
+
+      let x1 = e1 in e2 e3
+    is equivalent to
+      (let x1 = e1 in e2) e3
+    when x1 does not occur free in e3
+
+ * function declarations and conditional expressions can be swapped
+
+      fun x -> if e1
+               then e2
+               else e3
+    is equivalent to
+      if e1
+      then fun x -> e2
+      else fun x -> e3
+    when x does not occur free in e1
+
+*)
+
+(* ********** *)
+
+(* The mother of all fold-right functions: for lists. *)
+
+let fold_right_list nil_case cons_case xs_init =
+  let rec visit xs =
+    match xs with
+    | [] ->
+       nil_case
+    | x :: xs' ->
+       cons_case x (visit xs')
+  in visit xs_init;;
+
+let () = assert (test_fold_right_list_int_list_int_list fold_right_list);;
+
+let () = assert (test_fold_right_list_int_list_int fold_right_list);;
+
+(* ********** *)
+
+let show_int n =
+ (* show_int : int -> string *)
+  if n < 0
+  then "~" ^ string_of_int n
+  else string_of_int n;;
+
+let test_show_list_in_long_hand candidate =
+    (candidate []
+     = "[]")
+  && 
+    (candidate [0]
+     = "0 :: []")
+  && 
+    (candidate [1; 0]
+     = "1 :: 0 :: []")
+  && 
+    (candidate [2; 1; 0]
+     = "2 :: 1 :: 0 :: []")
+  && 
+    (candidate [3; 2; 1; 0]
+     = "3 :: 2 :: 1 :: 0 :: []")
+  && 
+    (candidate [~-2; ~-1; 0]
+     = "~-2 :: ~-1 :: 0 :: []")
+  (* etc. *);;
+
+let show_list_in_long_hand show_yourself vs_init =
+  let rec visit vs =
+    match vs with
+    | [] ->
+       "[]"
+    | v :: vs' ->
+       let c = visit vs'
+       in (show_yourself v) ^ " :: " ^ c
+  in visit vs_init;;
+
+let () = assert (test_show_list_in_long_hand (show_list_in_long_hand show_int));;
+
+let show_list_in_long_hand_alt show_yourself vs_init =
+  fold_right_list "[]"
+                  (fun v c ->
+                    (show_yourself v) ^ " :: " ^ c)
+                  vs_init;;
+
+let () = assert (test_show_list_in_long_hand (show_list_in_long_hand_alt show_int));;
+
+(* Exercise 1:
+
+   a. Write an unparsing function that passes the following unit test.
+
+   b. Express your unparsing function using fold_right_list.
+*)
+
+let test_show_list candidate =
+    (candidate []
+     = "[]")
+  && 
+    (candidate [0]
+     = "[0]")
+  && 
+    (candidate [1; 0]
+     = "[1; 0]")
+  && 
+    (candidate [2; 1; 0]
+     = "[2; 1; 0]")
+  && 
+    (candidate [3; 2; 1; 0]
+     = "[3; 2; 1; 0]")
+  && 
+    (candidate [~-2; ~-1; 0]
+     = "[~-2; ~-1; 0]")
+  (* etc. *);;
+
+(* question 1a *)
+let show_list show_yourself vs_init =
+  let rec visit vs =
+    match vs with
+    | [] ->
+       ""
+    | [x] -> show_yourself x
+    | v :: vs' ->
+       let c = visit vs'
+       in (show_yourself v) ^ "; " ^ c
+  in "[" ^ visit vs_init ^ "]" ;;
+
+
+let () = assert (test_show_list (show_list show_int));;
+*)
+
+(* question 1b*)
+let show_list_alt show_yourself vs_init =
+  "[" ^ (fold_right_list ""
+    (fun v vs' -> if vs' = "" then show_yourself v else (show_yourself v) ^ "; " ^ vs')
+     vs_init) ^ "]";;
+
+
+let () = assert (test_show_list (show_list_alt show_int));;
+
+(* ********** *)
+
+let test_duplicate2 candidate =
+  (candidate [] = []) &&
+  (candidate [0] = [0; 0]) &&
+  (candidate [1; 0] = [1; 1; 0; 0]) &&
+  (candidate [2; 1; 0] = [2; 2; 1; 1; 0; 0]) &&
+  (candidate [3; 2; 1; 0] = [3; 3; 2; 2; 1; 1; 0; 0])
+  (* etc. *);;
+
+let duplicate2 vs_init =
+  (* duplicate2 : 'a list -> 'a list *)
+  let rec stutter2 vs =
+    (* stutter2 : 'a list -> 'a list *)
+    match vs with
+    | [] ->
+       []
+    | v :: vs' ->
+       let c = stutter2 vs'
+       in v :: v :: c
+  in stutter2 vs_init;;
+
+let () = assert (test_duplicate2 duplicate2);;
+
+(* Exercise 2:
+
+   Express duplicate2 using fold_right_list
+   and verify that it passes the unit test.
+*)
+
+let duplicate2_alt vs_init =
+  fold_right_list []
+    (fun v vs' -> v :: v :: vs')
+    vs_init;;
+
+
+let () = assert (test_duplicate2 duplicate2_alt);;
+
+(* ********** *)
+
+(* A prototypical recursive function over lists: *)
+
+let test_length candidate =
+  (candidate [] = 0) &&
+  (candidate [1] = 1) &&
+  (candidate [2; 1] = 2) &&
+  (candidate [3; 2; 1] = 3)
+  (* etc. *);;
+
+let length xs_init =
+  let rec visit xs =
+    match xs with
+    | [] ->
+       0
+    | x :: xs' ->
+       1 + (visit xs')
+  in visit xs_init;;
+
+let () = assert (test_length length);;
+
+(* The length function, generically: *)
+
+let length_alt xs =
+  fold_right_list 0 (fun x c -> 1 + c) xs;;
+
+let () = assert (test_length length_alt);;
+
+(* The prototypical accumulator-based recursive function over lists: *)
+
+let length_acc xs_init =
+  let rec visit xs a =
+    match xs with
+    | [] ->
+       a
+    | x :: xs' ->
+       visit xs' (1 + a)
+  in visit xs_init 0;;
+
+let () = assert (test_length length_acc);;
+
+(* The definition of length_acc is not fold-right ready,
+   so let us massage it into a definition that is. *)
+
+(* desugaring the let expression: *)
+
+let length_acc' xs_init =
+  let rec visit xs = fun a ->
+    match xs with
+    | [] ->
+       a
+    | x :: xs' ->
+       visit xs' (1 + a)
+  in visit xs_init 0;;
+
+let () = assert (test_length length_acc');;
+
+(* swapping function declaration and conditional expression: *)
+
+let length_acc'' xs_init =
+  let rec visit xs = 
+    match xs with
+    | [] ->
+       (fun a -> a)
+    | x :: xs' ->
+       (fun a -> visit xs' (1 + a))
+  in visit xs_init 0;;
+
+let () = assert (test_length length_acc'');;
+
+(* swapping let expression and application: *)
+
+let length_acc'' xs_init =
+  (let rec visit xs = 
+    match xs with
+    | [] ->
+       (fun a -> a)
+    | x :: xs' ->
+       (fun a -> visit xs' (1 + a))
+   in visit xs_init) 0;;
+
+let () = assert (test_length length_acc'');;
+
+(* length_acc'' is fold-right ready: *)
+
+let length_acc_alt xs =
+  (fold_right_list (fun a -> a)
+                   (fun x c -> fun a -> c (1 + a))
+                   xs) 0;;
+
+let () = assert (test_length length_acc_alt);;
+
+(* de-associating function composition: *)
+
+let length_acc_alt' xs =
+  fold_right_list (fun a -> a)
+                  (fun x c -> fun a -> c (1 + a))
+                  xs
+                  0;;
+
+let () = assert (test_length length_acc_alt);;
+
+(* resugaring the function declaration: *)
+
+let length_acc_alt'' xs =
+  fold_right_list (fun a -> a)
+                  (fun x c a -> c (1 + a))
+                  xs
+                  0;;
+
+let () = assert (test_length length_acc_alt'');;
+
+(* ********** *)
+
+let test_append candidate =
+  (candidate [] [1; 0] = [1; 0]) &&
+  (candidate [2] [1; 0] = [2; 1; 0]) &&
+  (candidate [3; 2] [1; 0] = [3; 2; 1; 0]) &&
+  (candidate [10; 20] [] = [10; 20])
+  (* etc. *);;
+
+(* lambda-dropped version of the append function: with lexical scope and block structure *)
+
+let append xs_init ys_init =
+  let rec visit xs =
+    match xs with
+    | [] ->
+       ys_init
+    | x :: xs' ->
+       let c = visit xs'
+       in x :: c
+  in visit xs_init;;
+
+let () = assert (test_append append);;
+
+let append_alt xs_init ys_init =
+  fold_right_list ys_init
+                  (fun x c ->
+                    x :: c)
+                  xs_init;;
+
+let () = assert (test_append append_alt);;
+
+(* ***** *)
+
+(* lambda-lifted version of the append function: as a recursive equation *)
+
+let rec append_ll xs ys =
+  match xs with
+  | [] ->
+     ys
+  | x :: xs' ->
+     let c = append_ll xs' ys
+     in x :: c;;
+
+let () = assert (test_append append_ll);;
+
+(* Exercise 3:
+
+   Express append_ll using fold_right_list
+   and verify that it passes the unit test.
+*)
+
+let append_ll_alt xs ys =
+  fold_right_list ys
+    (fun x xs' -> x :: xs')
+    xs;;
+
+let () = assert (test_append append_ll_alt);;
+
+
+(* ********** *)
+
+(* end of week-10a_fold-right-for-lists.ml *)
+
+"week-10a_fold-right-for-lists.ml"

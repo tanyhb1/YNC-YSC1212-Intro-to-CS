@@ -1,0 +1,45 @@
+(*TAN YAO HONG BRYAN ASSIGNMENT no. 10a *)
+
+let f ;;
+
+let a = ref (1,2);;
+let a = [1;2;3;4;5;6;7;8;9;10];;
+let b = [(1,2); (3,4); (5,6)];;
+
+let rec lookup key lst =
+  match lst with
+  | x :: xs -> (match x with
+                | (a, b) -> if a = key then b else lookup key xs)
+  | _ -> raise Not_found;;
+
+
+let cache f =
+  let stor = ref [] in
+   fun input ->
+    try
+      lookup input !stor
+    with
+      _ ->
+      let tmp = f input in
+      stor := (input; tmp) :: !stor ;
+      tmp
+;;
+
+
+
+
+let rec fib n = if n = 0 || n = 1 then 1 else fib (n-1) + fib (n-2);;
+
+
+let cache_fib = cache fib;;
+
+let memo f =
+  let m = ref [] in
+    fun x ->
+      try
+        List.assoc x !m
+      with
+      Not_found ->
+        let y = f x in
+          m := (x, y) :: !m ;
+          y

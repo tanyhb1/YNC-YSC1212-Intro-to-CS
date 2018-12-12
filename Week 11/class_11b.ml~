@@ -1,0 +1,10 @@
+(* Class 11b *)
+
+type qnode = NilQ
+           | NodeQ of int * qnode ref * qnode ref;;
+type q = (qnode ref) * (qnode ref);;
+
+let enqueue q x =
+  match q with (back, front) ->
+    match !back with
+    | NodeQ (_, b
